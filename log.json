@@ -1,1 +1,1 @@
-[{"cmd":"withdraw","amount":-113}]
+[{"msg":{"cmd":"deposit","amount":113},"hash":"cf612485138551a5a7c98e5da41a8d627d47f9a3693963fa87bf1e4be6afc2e8"},{"msg":{"cmd":"deposit","amount":113},"hash":"3706511b86a71ba478affde9dee187b5115e7873934b9a6e02cf823cb8af99a1"},{"msg":{"cmd":"deposit","amount":113},"hash":"4fb305005b666bfc004649b9231fa7ac37b671b07d487b822f6a6b760b9d53a1"},{"msg":{"cmd":"deposit","amount":113},"hash":"841f2c3b70c937d5395450716857ba58d164a296738cc438692ae5eb240b0c09"}]

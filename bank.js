@@ -1,8 +1,22 @@
 var fs = require('fs')
 var jsonStream = require('duplex-json-stream')
 var net = require('net')
+var sodium = require('sodium-native')
 
+var genesisHash = Buffer.alloc(32).toString('hex')
 var log = require('./log')
+// integrity check of transaction log
+if (log.length > 1) {
+	check = log.reduce((a, b) => ({hash: hashToHex(a.hash + JSON.stringify(b.msg))}))
+
+	if (log[log.length - 1].hash !== check.hash) {
+		console.log("Transaction log has been tampered with, aborting start-up!")
+		process.exit(1)
+	}
+	console.log("Transaction log clean, starting server on port 3876")
+}
+
+
 var server = net.createServer(function (socket) {
   socket = jsonStream(socket)
 
@@ -43,7 +57,14 @@ function checkWithdraw(amount) {
 }
 
 function getBalance() {
-	return log.reduce((a, b) => (a + b.amount), 0)
+	return log.reduce((a, b) => (a + b.msg.amount), 0)
+}
+
+function hashToHex(str) {
+	var input = Buffer.from(str)
+	var output = Buffer.alloc(sodium.crypto_generichash_BYTES)
+	sodium.crypto_generichash(output, input)
+	return output.toString('hex')
 }
 
 function writeBalance(socket) {
@@ -52,7 +73,13 @@ function writeBalance(socket) {
 }
 
 function storeTransaction(msg) {
-  log.push(msg)
+  var prevHash = log.length ? log[log.length - 1].hash : genesisHash
+
+  log.push({
+  	msg: msg,
+  	hash: hashToHex(prevHash + JSON.stringify(msg))
+  })
+  // rewrite out log
   fs.writeFile ("log.json", JSON.stringify(log), function(err) {
     if (err) throw err
   })
